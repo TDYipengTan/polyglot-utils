@@ -54,7 +54,9 @@
             defaultValue: trEl.children[defaultValueIndex].textContent,
             value: trEl.children[valueIndex].children[0].value,
           };
-          values[i] = trEl.children[valueIndex].children[0].value ? '' : trEl.children[defaultValueIndex].textContent;
+          values[i] = trEl.children[valueIndex].children[0].value
+            ? ""
+            : trEl.children[defaultValueIndex].textContent;
         });
         return {
           allInfo,
