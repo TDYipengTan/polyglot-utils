@@ -8,3 +8,7 @@ utils for polyglot
 ![step 4](images/4.png)
 ![step 5](images/5.png)
 ![step 6](images/6.png)
+
+# problem
+- how to clear polyglot word
+![problem 1](images/7.png)
