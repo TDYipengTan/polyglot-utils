@@ -24,15 +24,15 @@
   </head>
   <body>
     <div id="btn-wrapper">
-      <button id="get-info-btn">获取元素默认值信息（用于翻译）</button>
+      <button id="get-info-btn">copy getJSONToBeTranslated fn</button>
       <br />
       <textarea
         id="set-info-textarea"
-        placeholder="empty will genetate set empty to page fn"
+        placeholder="setJSONTranslatedToPage param"
         cols="30"
         rows="10"
       ></textarea>
-      <button id="set-info-btn">根据翻译后的信息设置值</button>
+      <button id="set-info-btn">copy setJSONTranslatedToPage fn</button>
       <input type="text" id="info-input" hidden />
     </div>
     <script>
@@ -47,18 +47,18 @@
           return;
         }
         const allInfo = new Array(tbodyEl.children.length);
-        const defaultValues = new Array(tbodyEl.children.length);
+        const values = new Array(tbodyEl.children.length);
         Array.from(tbodyEl.children, (trEl, i) => {
           allInfo[i] = {
             key: trEl.children[keyIndex].textContent,
             defaultValue: trEl.children[defaultValueIndex].textContent,
             value: trEl.children[valueIndex].children[0].value,
           };
-          defaultValues[i] = trEl.children[defaultValueIndex].textContent;
+          values[i] = trEl.children[valueIndex].children[0].value ? '' : trEl.children[defaultValueIndex].textContent;
         });
         return {
           allInfo,
-          defaultValues,
+          values,
         };
       };
 
@@ -83,7 +83,12 @@
           if (!filterFn(defaultValue)) {
             return;
           }
-          setValue.call(inputEl, translatedJSON[i] || "");
+          const translatedJSONItem = translatedJSON[i] || "";
+          if (!translatedJSONItem) {
+            return;
+          }
+          console.log(i, translatedJSONItem);
+          setValue.call(inputEl, translatedJSONItem);
           const event = new Event("input", { bubbles: true });
           inputEl.dispatchEvent(event);
         });
@@ -112,7 +117,7 @@
       setBtn.onclick = () => {
         copyText(`(() => {
           const handler = ${setJSONTranslatedToPage.toString()};
-          return handler(${setTextarea.value || "[]"});
+          return handler(${setTextarea.value || "[]"}.map(item => item.trim()));
         })()`);
       };
     </script>
