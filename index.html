@@ -83,12 +83,14 @@
           if (!filterFn(defaultValue)) {
             return;
           }
-          const translatedJSONItem = translatedJSON[i] || "";
-          if (!translatedJSONItem) {
+          const translatedJSONItem = translatedJSON[i];
+          // jump over
+          if (translatedJSONItem === "") {
             return;
           }
           console.log(i, translatedJSONItem);
-          setValue.call(inputEl, translatedJSONItem);
+          // undefined will empty
+          setValue.call(inputEl, translatedJSONItem || "");
           const event = new Event("input", { bubbles: true });
           inputEl.dispatchEvent(event);
         });
