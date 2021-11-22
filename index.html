@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Polyglot utils</title>
+    <style>
+      #btn-wrapper {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+      }
+
+      #btn-wrapper #get-info-btn,
+      #btn-wrapper #set-info-btn {
+        display: inline-block;
+        padding: 10px 20px;
+        margin: 20px;
+        vertical-align: text-bottom;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="btn-wrapper">
+      <button id="get-info-btn">获取元素默认值信息（用于翻译）</button>
+      <br />
+      <textarea
+        id="set-info-textarea"
+        placeholder="empty will genetate set empty to page fn"
+        cols="30"
+        rows="10"
+      ></textarea>
+      <button id="set-info-btn">根据翻译后的信息设置值</button>
+      <input type="text" id="info-input" hidden />
+    </div>
+    <script>
+      const getJSONToBeTranslated = (
+        filterFn = () => true,
+        keyIndex = 1,
+        defaultValueIndex = 2,
+        valueIndex = 3
+      ) => {
+        const tbodyEl = document.getElementsByTagName("tbody")[0];
+        if (!tbodyEl) {
+          return;
+        }
+        const allInfo = new Array(tbodyEl.children.length);
+        const defaultValues = new Array(tbodyEl.children.length);
+        Array.from(tbodyEl.children, (trEl, i) => {
+          allInfo[i] = {
+            key: trEl.children[keyIndex].textContent,
+            defaultValue: trEl.children[defaultValueIndex].textContent,
+            value: trEl.children[valueIndex].children[0].value,
+          };
+          defaultValues[i] = trEl.children[defaultValueIndex].textContent;
+        });
+        return {
+          allInfo,
+          defaultValues,
+        };
+      };
+
+      const setJSONTranslatedToPage = (
+        translatedJSON = "",
+        filterFn = () => true,
+        defaultValueIndex = 2,
+        valueIndex = 3
+      ) => {
+        const tbodyEl = document.getElementsByTagName("tbody")[0];
+        if (!tbodyEl) {
+          return;
+        }
+        const setValue = Object.getOwnPropertyDescriptor(
+          HTMLInputElement.prototype,
+          "value"
+        ).set;
+        translatedJSON = Array.isArray(translatedJSON) ? translatedJSON : [];
+        Array.from(tbodyEl.children, (trEl, i) => {
+          const defaultValue = trEl.children[defaultValueIndex].textContent;
+          const inputEl = trEl.children[valueIndex].children[0];
+          if (!filterFn(defaultValue)) {
+            return;
+          }
+          setValue.call(inputEl, translatedJSON[i] || "");
+          const event = new Event("input", { bubbles: true });
+          inputEl.dispatchEvent(event);
+        });
+      };
+
+      // dom operate
+      const infoInput = document.getElementById("info-input");
+      const getBtn = document.getElementById("get-info-btn");
+      const setBtn = document.getElementById("set-info-btn");
+      const setTextarea = document.getElementById("set-info-textarea");
+
+      const copyText = (text) => {
+        infoInput.value = text;
+        infoInput.select();
+        infoInput.setSelectionRange(0, 99999);
+        navigator.clipboard.writeText(infoInput.value);
+        setTimeout(() => {
+          alert("copy success!");
+        });
+      };
+
+      getBtn.onclick = () => {
+        copyText(`(${getJSONToBeTranslated.toString()})()`);
+      };
+
+      setBtn.onclick = () => {
+        copyText(`(() => {
+          const handler = ${setJSONTranslatedToPage.toString()};
+          return handler(${setTextarea.value || "[]"});
+        })()`);
+      };
+    </script>
+  </body>
+</html>
