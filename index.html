@@ -86,12 +86,12 @@
             return;
           }
           const translatedJSONItem = translatedJSON[i];
-          // jump over
+          /* jump over */
           if (translatedJSONItem === "") {
             return;
           }
           console.log(i, translatedJSONItem);
-          // undefined will empty
+          /* undefined will empty */
           setValue.call(inputEl, translatedJSONItem || "");
           const event = new Event("input", { bubbles: true });
           inputEl.dispatchEvent(event);
