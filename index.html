@@ -65,8 +65,9 @@
       };
 
       const setJSONTranslatedToPage = (
-        translatedJSON = "",
+        translatedJSON = {},
         filterFn = () => true,
+        keyIndex = 1,
         defaultValueIndex = 2,
         valueIndex = 3
       ) => {
@@ -78,21 +79,21 @@
           HTMLInputElement.prototype,
           "value"
         ).set;
-        translatedJSON = Array.isArray(translatedJSON) ? translatedJSON : [];
         Array.from(tbodyEl.children, (trEl, i) => {
           const defaultValue = trEl.children[defaultValueIndex].textContent;
+          const key = trEl.children[keyIndex].textContent;
           const inputEl = trEl.children[valueIndex].children[0];
           if (!filterFn(defaultValue)) {
             return;
           }
-          const translatedJSONItem = translatedJSON[i];
+          const translatedJSONItem = Array.isArray(translatedJSON) ? translatedJSON[i] : translatedJSON[key];
           /* jump over */
-          if (translatedJSONItem === "") {
+          if (translatedJSONItem === "" || translatedJSONItem == null) {
             return;
           }
-          console.log(i, translatedJSONItem);
+          console.log(i, key, translatedJSONItem);
           /* undefined will empty */
-          setValue.call(inputEl, translatedJSONItem || "");
+          setValue.call(inputEl, translatedJSONItem?.trim() || "");
           const event = new Event("input", { bubbles: true });
           inputEl.dispatchEvent(event);
         });
@@ -121,7 +122,7 @@
       setBtn.onclick = () => {
         copyText(`(() => {
           const handler = ${setJSONTranslatedToPage.toString()};
-          return handler(${setTextarea.value || "[]"}.map(item => item.trim()));
+          return handler(${setTextarea.value});
         })()`);
       };
     </script>
