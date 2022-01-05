@@ -46,6 +46,7 @@
         if (!tbodyEl) {
           return;
         }
+        let count = 0;
         const allInfo = new Array(tbodyEl.children.length);
         const values = new Array(tbodyEl.children.length);
         Array.from(tbodyEl.children, (trEl, i) => {
@@ -57,10 +58,14 @@
           values[i] = trEl.children[valueIndex].children[0].value
             ? ""
             : trEl.children[defaultValueIndex].textContent;
+          if (allInfo[i].value) {
+            count ++;
+          }
         });
         return {
           allInfo,
           values,
+          count
         };
       };
 
@@ -75,6 +80,7 @@
         if (!tbodyEl) {
           return;
         }
+        let count = 0;
         const setValue = Object.getOwnPropertyDescriptor(
           HTMLInputElement.prototype,
           "value"
@@ -88,15 +94,17 @@
           }
           const translatedJSONItem = Array.isArray(translatedJSON) ? translatedJSON[i] : translatedJSON[key];
           /* jump over */
-          if (translatedJSONItem === "" || translatedJSONItem == null) {
+          if (translatedJSONItem === "" || translatedJSONItem == null || inputEl.value) {
             return;
           }
           console.log(i, key, translatedJSONItem);
+          count ++;
           /* undefined will empty */
           setValue.call(inputEl, translatedJSONItem?.trim() || "");
           const event = new Event("input", { bubbles: true });
           inputEl.dispatchEvent(event);
         });
+        console.log('translated count', count);
       };
 
       // dom operate
