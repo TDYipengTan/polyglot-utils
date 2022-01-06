@@ -70,7 +70,7 @@
       };
 
       const setJSONTranslatedToPage = (
-        translatedJSON = {},
+        translatedJSON = [],
         filterFn = () => true,
         keyIndex = 1,
         defaultValueIndex = 2,
@@ -94,7 +94,7 @@
           }
           const translatedJSONItem = Array.isArray(translatedJSON) ? translatedJSON[i] : translatedJSON[key];
           /* jump over */
-          if (translatedJSONItem === "" || translatedJSONItem == null || inputEl.value) {
+          if (translatedJSONItem === "" || (!Array.isArray(translatedJSON) && (translatedJSONItem == null || inputEl.value))) {
             return;
           }
           console.log(i, key, translatedJSONItem);
