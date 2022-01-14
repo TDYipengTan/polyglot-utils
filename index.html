@@ -14,7 +14,10 @@
       }
 
       #btn-wrapper #get-info-btn,
-      #btn-wrapper #set-info-btn {
+      #btn-wrapper #set-info-btn,
+      #btn-wrapper #clear-info-btn,
+      #btn-wrapper #get-values-info-btn,
+      #btn-wrapper #set-values-info-btn {
         display: inline-block;
         padding: 10px 20px;
         margin: 20px;
@@ -33,6 +36,30 @@
         rows="10"
       ></textarea>
       <button id="set-info-btn">copy setJSONTranslatedToPage fn</button>
+      <br />
+      <textarea
+        id="clear-info-textarea"
+        placeholder="clear info not included in this json"
+        cols="30"
+        rows="10"
+      ></textarea>
+      <button id="clear-info-btn">copy clearJSONNotIncludedInPage fn</button>
+      <br />
+      <textarea
+        id="get-values-info-textarea"
+        placeholder="paste the object"
+        cols="30"
+        rows="10"
+      ></textarea>
+      <button id="get-values-info-btn">copy values</button>
+      <br />
+      <textarea
+        id="set-values-info-textarea"
+        placeholder="paste translated values"
+        cols="30"
+        rows="10"
+      ></textarea>
+      <button id="set-values-info-btn">copy object</button>
       <input type="text" id="info-input" hidden />
     </div>
     <script>
@@ -94,7 +121,7 @@
           }
           const translatedJSONItem = Array.isArray(translatedJSON) ? translatedJSON[i] : translatedJSON[key];
           /* jump over */
-          if (translatedJSONItem === "" || (!Array.isArray(translatedJSON) && (translatedJSONItem == null || inputEl.value))) {
+          if ((translatedJSONItem === "" || !inputEl.value) || (!Array.isArray(translatedJSON) && (translatedJSONItem == null || inputEl.value))) {
             return;
           }
           console.log(i, key, translatedJSONItem);
@@ -107,11 +134,51 @@
         console.log('translated count', count);
       };
 
+      const clearJSONNotIncludedInPage = (
+        translatedJSON = {},
+        keyIndex = 1,
+        defaultValueIndex = 2,
+        valueIndex = 3
+      ) => {
+        const tbodyEl = document.getElementsByTagName("tbody")[0];
+        if (!tbodyEl) {
+          return;
+        }
+        let count = 0;
+        const setValue = Object.getOwnPropertyDescriptor(
+          HTMLInputElement.prototype,
+          "value"
+        ).set;
+        Array.from(tbodyEl.children, (trEl, i) => {
+          const key = trEl.children[keyIndex].textContent;
+          const inputEl = trEl.children[valueIndex].children[0];
+          const translatedJSONItem = translatedJSON[key];
+          /* jump over */
+          if (!!inputEl.value && !translatedJSONItem) {
+            console.log(i, key, translatedJSONItem);
+            count ++;
+            /* undefined will empty */
+            setValue.call(inputEl, "");
+            const event = new Event("input", { bubbles: true });
+            inputEl.dispatchEvent(event);
+          }
+        });
+        console.log('cleared count', count);
+      }
+
       // dom operate
       const infoInput = document.getElementById("info-input");
       const getBtn = document.getElementById("get-info-btn");
+
       const setBtn = document.getElementById("set-info-btn");
-      const setTextarea = document.getElementById("set-info-textarea");
+      const clearBtn = document.getElementById("clear-info-btn");
+      const getValuesBtn = document.getElementById("get-values-info-btn");
+      const setValuesBtn = document.getElementById("set-values-info-btn");
+
+      const setTextarea = document.getElementById("set-values-info-textarea");
+      const clearTextarea = document.getElementById("clear-info-textarea");
+      const getValuesTextarea = document.getElementById("get-values-info-textarea");
+      const setValuesTextarea = document.getElementById("set-values-info-textarea");
 
       const copyText = (text) => {
         infoInput.value = text;
@@ -123,6 +190,25 @@
         });
       };
 
+      window.getValues = (o = {}) => {
+        const values = Object.values(o);
+        window.__o__ = o;
+
+        return values;
+      }
+
+      window.getTranslatedObject = (vs = []) => {
+        console.log(window.__o__, vs);
+        if (!window.__o__) return {};
+        return Object.keys(window.__o__).reduce((n, k, i) => {
+          if (vs[i]) {
+            n[k] = vs[i];
+          }
+
+          return n;
+        }, {});
+      }
+
       getBtn.onclick = () => {
         copyText(`(${getJSONToBeTranslated.toString()})()`);
       };
@@ -133,6 +219,40 @@
           return handler(${setTextarea.value});
         })()`);
       };
+
+      setBtn.onclick = () => {
+        copyText(`(() => {
+          const handler = ${setJSONTranslatedToPage.toString()};
+          return handler(${setTextarea.value});
+        })()`);
+      };
+
+      clearBtn.onclick = () => {
+        copyText(`(() => {
+          const handler = ${clearJSONNotIncludedInPage.toString()};
+          return handler(${clearTextarea.value});
+        })()`)
+      }
+
+      getValuesBtn.onclick = () => {
+        try {
+          copyText(
+            JSON.stringify(window.getValues(JSON.parse(getValuesTextarea.value)))
+          );
+        } catch (error) {
+          console.error(error);
+        }
+      }
+
+      setValuesBtn.onclick = () => {
+        try {
+          copyText(
+            JSON.stringify(window.getTranslatedObject(JSON.parse(setValuesTextarea.value)))
+          );
+        } catch (error) {
+          console.error(error);
+        }
+      }
     </script>
   </body>
 </html>
