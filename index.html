@@ -121,7 +121,9 @@
           }
           const translatedJSONItem = Array.isArray(translatedJSON) ? translatedJSON[i] : translatedJSON[key];
           /* jump over */
-          if ((translatedJSONItem === "" || !inputEl.value) || (!Array.isArray(translatedJSON) && (translatedJSONItem == null || inputEl.value))) {
+          if (
+            (Array.isArray(translatedJSON) && (translatedJSONItem === "" || !inputEl.value))
+            || (!Array.isArray(translatedJSON) && (translatedJSONItem == null || inputEl.value))) {
             return;
           }
           console.log(i, key, translatedJSONItem);
@@ -175,7 +177,7 @@
       const getValuesBtn = document.getElementById("get-values-info-btn");
       const setValuesBtn = document.getElementById("set-values-info-btn");
 
-      const setTextarea = document.getElementById("set-values-info-textarea");
+      const setTextarea = document.getElementById("set-info-textarea");
       const clearTextarea = document.getElementById("clear-info-textarea");
       const getValuesTextarea = document.getElementById("get-values-info-textarea");
       const setValuesTextarea = document.getElementById("set-values-info-textarea");
@@ -211,13 +213,6 @@
 
       getBtn.onclick = () => {
         copyText(`(${getJSONToBeTranslated.toString()})()`);
-      };
-
-      setBtn.onclick = () => {
-        copyText(`(() => {
-          const handler = ${setJSONTranslatedToPage.toString()};
-          return handler(${setTextarea.value});
-        })()`);
       };
 
       setBtn.onclick = () => {
