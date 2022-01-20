@@ -10,4 +10,4 @@ utils for polyglot
 
 # problem
 - how to clear the all values from polyglot
-[problem 1](images/p1.png)
+![problem 1](images/p1.png)
