@@ -35,6 +35,8 @@
         cols="30"
         rows="10"
       ></textarea>
+      <label for="setCommonInfo">if set common</label>
+      <input type="checkbox" name="setCommonInfo" id="set-info-checkbox">
       <button id="set-info-btn">copy setJSONTranslatedToPage fn</button>
       <br />
       <textarea
@@ -98,6 +100,7 @@
 
       const setJSONTranslatedToPage = (
         translatedJSON = [],
+        isSetCommon = false,
         filterFn = () => true,
         keyIndex = 1,
         defaultValueIndex = 2,
@@ -119,7 +122,7 @@
           if (!filterFn(defaultValue)) {
             return;
           }
-          const translatedJSONItem = Array.isArray(translatedJSON) ? translatedJSON[i] : translatedJSON[key];
+          const translatedJSONItem = Array.isArray(translatedJSON) ? translatedJSON[i] : isSetCommon ? defaultValue : translatedJSON[key];
           /* jump over */
           if (
             (Array.isArray(translatedJSON) && (translatedJSONItem === "" || !inputEl.value))
@@ -182,6 +185,9 @@
       const getValuesTextarea = document.getElementById("get-values-info-textarea");
       const setValuesTextarea = document.getElementById("set-values-info-textarea");
 
+      let isSetChecked = false;
+      const setCheckbox = document.getElementById('set-info-checkbox');
+
       const copyText = (text) => {
         infoInput.value = text;
         infoInput.select();
@@ -215,10 +221,14 @@
         copyText(`(${getJSONToBeTranslated.toString()})()`);
       };
 
+      setCheckbox.onchange = (e) => {
+        isSetChecked = e.target.checked;
+      }
+
       setBtn.onclick = () => {
         copyText(`(() => {
           const handler = ${setJSONTranslatedToPage.toString()};
-          return handler(${setTextarea.value});
+          return handler(${setTextarea.value || '{}'}, ${isSetChecked});
         })()`);
       };
 
