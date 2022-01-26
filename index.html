@@ -122,7 +122,7 @@
           if (!filterFn(defaultValue)) {
             return;
           }
-          const translatedJSONItem = Array.isArray(translatedJSON) ? translatedJSON[i] : isSetCommon ? defaultValue : translatedJSON[key];
+          const translatedJSONItem = Array.isArray(translatedJSON) ? translatedJSON[i] : (isSetCommon && translatedJSON[key] != null) ? defaultValue : translatedJSON[key];
           /* jump over */
           if (
             (Array.isArray(translatedJSON) && (translatedJSONItem === "" || !inputEl.value))
